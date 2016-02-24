@@ -2,7 +2,7 @@
 
 // Not used
 define('DRUPAL_EU_COOKIE_CONSENT_WEBSITE_URL', 'https://drupal.org/project/eu_cookie_consent');
-define('JQUERY_EU_COOKIE_CONSENT_WEBSITE_URL', 'https://github.com/dcorb/eu-cookie-consent');
+define('JQUERY_EU_COOKIE_CONSENT_WEBSITE_URL', 'https://github.com/dcorb/jquery.eu-cookie-consent');
 
 
 /**
