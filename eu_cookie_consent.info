@@ -1,0 +1,4 @@
+name = Cookie Law Consent
+description = A lightweight JavaScript solution to the EU Cookie Law.
+core = 7.x
+configure = admin/config/services/eu-cookie-consent

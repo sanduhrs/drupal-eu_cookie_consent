@@ -1,0 +1,8 @@
+<?php
+
+/**
+  * Implements hook_uninstall().
+  */
+function eu_cookie_consent_uninstall() {
+  variable_del('eu_cookie_consent');
+}

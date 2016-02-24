@@ -1,0 +1,291 @@
+<?php
+
+// Not used
+define('DRUPAL_EU_COOKIE_CONSENT_WEBSITE_URL', 'https://drupal.org/project/eu_cookie_consent');
+define('JQUERY_EU_COOKIE_CONSENT_WEBSITE_URL', 'https://github.com/dcorb/eu-cookie-consent');
+
+
+/**
+ * Implements hook_menu().
+ */
+function eu_cookie_consent_menu() {
+
+  $items['admin/config/services/eu-cookie-consent'] = array(
+    'title'             => 'EU Cookie Consent',
+    'description'       => 'Configure EU Cookie Law Consent',
+    'page callback'     => 'drupal_get_form',
+    'page arguments'    => array('eu_cookie_consent_settings_form'),
+    'access arguments'  => array('administer eu cookie consent'),
+    'file'              => 'eu_cookie_consent.admin.inc',
+  );
+
+  return $items;
+
+}
+
+/**
+ * Implements hook_permission().
+ */
+function eu_cookie_consent_permission() {
+  return array(
+    'administer eu cookie consent' => array(
+      'title' => t('Administer EU Cookie Consent'),
+    ),
+  );
+}
+
+/**
+ * Get the location of the Cookie Consent library.
+ * Inspired on 'chosen' module
+ *
+ * @return
+ *   The location of the library, or FALSE if the library isn't installed.
+ */
+function eu_cookie_consent_get_library_path() {
+  if (function_exists('libraries_get_path')) {
+    return libraries_get_path('jquery.eu-cookie-consent');
+  }
+
+  // The following logic is taken from libraries_get_libraries()
+  $searchdir = array();
+
+  // Similar to 'modules' and 'themes' directories inside an installation
+  // profile, installation profiles may want to place libraries into a
+  // 'libraries' directory.
+  $searchdir[] = 'profiles/' . drupal_get_profile() . '/libraries';
+
+  // Always search sites/all/libraries.
+  $searchdir[] = 'sites/all/libraries';
+
+  // Also search sites/<domain>/*.
+  $searchdir[] = conf_path() . '/libraries';
+
+  foreach ($searchdir as $dir) {
+    if (file_exists($dir . '/jquery.eu-cookie-consent/jquery.eu-cookie-consent.min.js')) {
+      return $dir . '/jquery.eu-cookie-consent';
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implements hook_page_build().
+ * Adds JavaScript to the appropriate scope/region of the page.
+ *
+ * Note: It can't be added through drupal_add_js() due of the
+ * JavaScript object declared inside the <script> element.
+ *
+ */
+function eu_cookie_consent_page_build(&$page) {
+  if (eu_cookie_consent_suppress(FALSE) || eu_cookie_consent_is_admin_path()) {
+    return;
+  }
+  // Performance: Skip this entirely for AJAX requests.
+  if (strpos($_GET['q'], 'js/') === 0) {
+    return;
+  }
+
+  drupal_add_library('eu-cookie-consent', 'eu-cookie-consent');
+
+  // Adds eu-cookie-consent library (that has a dependency on jquery.eu-cookie-consent library). JS And CSS
+  $page['page_bottom']['eu_cookie_consent']['#attached']['library'][] = array('eu_cookie_consent', 'eu-cookie-consent');
+}
+
+/*
+ * Helper to detect admin paths
+ */
+function eu_cookie_consent_is_admin_path() {
+  // TODO: Make it a setting in the admin page, (see implementation of context.module)
+  $paths = array(
+    'admin*',
+    'node/add*',
+    'node/*/*',
+  );
+  // Include both the path alias and normal path for matching.
+  $current_path = array(drupal_get_path_alias($_GET['q']));
+  if ($current_path[0] != $_GET['q']) {
+    $current_path[] = $_GET['q'];
+  }
+  return eu_cookie_consent_path_match($current_path, $paths, TRUE);
+}
+
+
+/**
+ * Helper to get the default values of the settings.
+ * Used in .module file and .admin.inc file
+ */
+function eu_cookie_consent_get_default_values() {
+  $default = array(
+    'theme' => 'dark',
+    'message' => t('This website uses cookies to ensure you get the best experience on our website. You can {{link_1}}.'),
+    'link_1' => 'http://cookies.org',
+    'link_1_text' => 'learn more about cookies',
+    'link_2' => '',
+    'link_2_text' => '',
+    'acceptBtn' => 'Ok!',
+    'expiry_days' => 365,
+    'hide_on_any_click' => true,
+    'hide_on_scroll' => true,
+    'scroll_delay' => 2000,
+  );
+  return array_merge($default, variable_get('eu_cookie_consent', array()));
+}
+
+
+/**
+ * Implements hook_library().
+ */
+function eu_cookie_consent_library() {
+
+  $library_path = eu_cookie_consent_get_library_path();
+
+  // jQuery plugin
+  $info['jquery.eu-cookie-consent'] = array(
+    'title' => 'jQuery EU Cookie Consent',
+    'website' => JQUERY_EU_COOKIE_CONSENT_WEBSITE_URL,
+    'version' => '0.9',
+    'js' => array(
+      $library_path . '/jquery.eu-cookie-consent.min.js' => array(
+        'group' => JS_DEFAULT,
+        'weight' => 100,
+      ),
+    ),
+    'dependencies' => array(
+      array('system', 'jquery'),
+    )
+  );
+
+  if (variable_get('eu_cookie_consent_theme', 'dark_bottom') !== 'none') {
+    $info['jquery.eu-cookie-consent']['css'] = array($library_path . '/css/eu-cookie-consent.min.css' => array());
+  }
+
+
+  $settings = eu_cookie_consent_get_default_values();
+
+  // Map settings to JavaScript syntax, so the Drupal behavior doesn't need
+  // to do any manipulations, just pass the options object to the jQuery plugin.
+  $options = array(
+    'theme' => $settings['theme'],
+    'message' => $settings['message'],
+    'links' => array(
+      'link_1' => $settings['link_1'],
+      'link_1_text' => $settings['link_1_text'],
+      'link_2' => $settings['link_2'],
+      'link_2_text' => $settings['link_2_text'],
+    ),
+    'accept_btn_text' => $settings['accept_btn_text'],
+    'expiry_days' => $settings['expiry_days'],
+    'hide_on_any_click' => $settings['hide_on_any_click'],
+    'hide_on_scroll' => $settings['hide_on_scroll'],
+    'scroll_delay' => $settings['scroll_delay'],
+  );
+
+  $module_path = drupal_get_path('module', 'eu_cookie_consent');
+  $info['eu-cookie-consent'] = array(
+    'title' => 'EU Cookie Consent. Drupal.behavior integration',
+    'website' => DRUPAL_EU_COOKIE_CONSENT_WEBSITE_URL,
+    'version' => '1.x',
+    'js' => array(
+      $module_path . '/eu_cookie_consent.js' => array(
+        'group' => JS_DEFAULT,
+        'weight' => 200,
+      ),
+      array(
+        'data' => array(
+          'EUCookieConsent' => $options
+        ),
+        'type' => 'setting',
+      ),
+    ),
+    'dependencies' => array(
+      array('eu_cookie_consent', 'jquery.eu-cookie-consent'),
+    )
+  );
+
+  return $info;
+}
+
+
+// ----------------------------------------------------------------------------------------------------------------
+/**
+ * Implementation of hook_suppress()
+ *
+ * Allows other modules to suppress display of EU Cookie consent
+ *
+ * This function should be called from within another module's page callback
+ * (preferably using module_invoke()) when the EU Cookie consent should not
+ * be displayed.
+ * This is useful for modules that implement popup pages or other special
+ * pages where the EU Cookie consent would be distracting or break the layout.
+ *
+ * @param $set
+ *   Defaults to TRUE. If called before hook_footer(), the EU Cookie consent
+ *   will not be displayed. If FALSE is passed, the suppression state is
+ *   returned.
+ **/
+function eu_cookie_consent_suppress($set = TRUE) {
+  static $suppress = FALSE;
+  if (!empty($set) && $suppress === FALSE) {
+    $suppress = TRUE;
+  }
+  return $suppress;
+}
+
+
+
+/**
+ * From context module:
+ * Match the subject against a set of regex patterns.
+ * Similar to drupal_match_path() but also handles negation through the use
+ * of the ~ character.
+ *
+ * @param mixed $subject
+ *   The subject string or an array of strings to be matched.
+ * @param array $patterns
+ *   An array of patterns. Any patterns that begin with ~ are considered
+ *   negative or excluded conditions.
+ * @param boolean $path
+ *   Whether the given subject should be matched as a Drupal path. If TRUE,
+ *   '<front>' will be replaced with the site frontpage when matching against
+ *   $patterns.
+ */
+function eu_cookie_consent_path_match($subject, $patterns, $path = FALSE) {
+  static $regexps;
+  $match = FALSE;
+  $positives = $negatives = 0;
+  $subject = !is_array($subject) ? array($subject) : $subject;
+  foreach ($patterns as $pattern) {
+    if (strpos($pattern, '~') === 0) {
+      $negate = TRUE;
+      $negatives++;
+    }
+    else {
+      $negate = FALSE;
+      $positives++;
+    }
+    $pattern = ltrim($pattern, '~');
+    if (!isset($regexps[$pattern])) {
+      if ($path) {
+        $regexps[$pattern] = '/^(' . preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1' . preg_quote(variable_get('site_frontpage', 'node'), '/') . '\2'), preg_quote($pattern, '/')) . ')$/';
+      }
+      else {
+        $regexps[$pattern] = '/^(' . preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/'), array('|', '.*'), preg_quote($pattern, '/')) . ')$/';
+      }
+    }
+    foreach ($subject as $value) {
+      if (preg_match($regexps[$pattern], $value)) {
+        if ($negate) {
+          return FALSE;
+        }
+        $match = TRUE;
+      }
+    }
+  }
+  // If there are **only** negative conditions and we've gotten this far none
+  // we actually have a match.
+  if ($positives === 0 && $negatives) {
+    return TRUE;
+  }
+  return $match;
+}

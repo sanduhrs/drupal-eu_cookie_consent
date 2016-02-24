@@ -1,0 +1,140 @@
+.cEU {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  transform: translate3d(0,0,0);
+  padding: 10px;
+  z-index: 9001;
+  background: #222;
+  color: #fff;
+  font-size: 16px;
+  font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", "Segoe UI", Calibri, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+.cEU__message {
+  font-size: 0.6em;
+  display: block;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5em;
+  padding-top:0.2em;
+}
+
+.cEU__message a,
+.cEU__message a:visited {
+  cursor:pointer;
+  text-decoration: none;
+  color: #19B5FE;
+}
+.cEU__message a:hover,
+.cEU__message a:active {
+  color: #55c8ff;
+}
+
+.cEU .cEU__btn,
+.cEU .cEU__btn:visited {
+  text-align: center;
+  font-size: 0.6em;
+  line-height: 1em;
+  color: #000;
+  background-color: #19B5FE;
+  border-radius: 2px;
+  padding: 8px 10px;
+  display: block;
+  width: 33%;
+  margin-left: 10px;
+  float: right;
+  max-width: 150px;
+  transition: background-color 200ms ease-in-out;
+}
+.cEU .cEU__btn:hover,
+.cEU .cEU__btn:active {
+  color: #fff;
+}
+/* Windows Metro style */
+.cEU--metro .cEU__btn,
+.cEU--metro .cEU__btn:visited {
+  border-radius: 0;
+}
+@media screen and (min-width: 500px) {
+  .cEU .cEU__btn {
+    font-size: 0.8em;
+  }
+  .cEU__message {
+    font-size: 0.8em;
+  }
+}
+@media screen and (min-width: 768px) {
+  .cEU .cEU__btn {
+    font-size: 1em;
+  }
+  .cEU__message {
+    font-size: 1em;
+    line-height: 1.25em;
+  }
+}
+@media screen and (min-width: 992px) {
+  .cEU__message {
+    font-size: 1em;
+  }
+}
+@media print {
+  .cEU {
+    display: none;
+  }
+}
+/* Bootstrap's 'md' breakpoint */
+@media screen and (min-width: 768px) {
+  .cEU {
+    padding: 15px 30px 15px;
+  }
+  .cEU .cEU__btn {
+    font-size: 1em;
+    padding: 8px 15px;
+  }
+  .cEU__message {
+    font-size: 1em;
+  }
+}
+/* Bootstrap's 'lg' breakpoint */
+@media screen and (min-width: 992px) {
+  .cEU__message {
+    font-size: 1em;
+  }
+}
+
+
+/* ------   Animations  --------- */
+.cEU.initialEffect,
+.cEU__message {
+  animation: slideUp 0.5s;
+  -webkit-animation: slideUp 0.5s;
+
+}
+.cEU.hideBar {
+  animation: slideUp 0.5s reverse forwards;
+  -webkit-animation: slideUp 0.5s reverse forwards;
+}
+@-webkit-keyframes slideUp {
+  0% {
+    -webkit-transform: translateY(66px);
+    transform: translateY(66px);
+  }
+  100% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+@keyframes slideUp {
+  0% {
+    -webkit-transform: translateY(66px);
+    transform: translateY(66px);
+  }
+  100% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
