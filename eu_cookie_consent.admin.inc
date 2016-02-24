@@ -10,7 +10,7 @@
  */
 function eu_cookie_consent_settings_form($form) {
 
-  $library_path = ''; eu_cookie_consent_get_library_path();
+  $library_path = eu_cookie_consent_get_library_path();
   if (!$library_path) {
     drupal_set_message(t('The library could not be detected. You need to download the !library and extract the contents of the github repo at %path directory',
       array('!library' => l(t('EU Cookie Consent Library'), JQUERY_EU_COOKIE_CONSENT_WEBSITE_URL), '%path' => 'sites/all/libraries/eu-cookie-consent')
