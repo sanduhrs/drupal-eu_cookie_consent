@@ -6,14 +6,21 @@
  */
 
 /**
- * Menu callback. Return the Cookie Consent configuration form
+ * Menu callback. Return the Cookie Consent configuration form.
  */
 function eu_cookie_consent_settings_form($form) {
 
   $library_path = eu_cookie_consent_get_library_path();
   if (!$library_path) {
-    drupal_set_message(t('The library could not be detected. You need to download the !library and extract the contents of the github repo at %path directory',
-      array('!library' => l(t('EU Cookie Consent Library'), JQUERY_EU_COOKIE_CONSENT_WEBSITE_URL), '%path' => 'sites/all/libraries/eu-cookie-consent')
+    drupal_set_message(
+      t('The library could not be detected. You need to download the !library and extract the contents of the Github repo at %path directory',
+      array(
+        '!library' => l(
+          t('EU Cookie Consent Library'),
+          JQUERY_EU_COOKIE_CONSENT_WEBSITE_URL
+        ),
+        '%path' => 'sites/all/libraries/eu-cookie-consent',
+      )
     ), 'error');
   }
   $available_themes = array(
@@ -26,7 +33,7 @@ function eu_cookie_consent_settings_form($form) {
   $form['eu_cookie_consent'] = array(
     '#type' => 'fieldset',
     '#title' => t('EU Cookie Settings'),
-    '#tree' => TRUE, // All the options in this fieldset will be grouped in 1 single variable.
+    '#tree' => TRUE,
   );
   $form['eu_cookie_consent']['theme'] = array(
     '#type' => 'select',
@@ -100,36 +107,63 @@ function eu_cookie_consent_settings_form($form) {
   return system_settings_form($form);
 }
 
-
-/*
- * Validate and sanitize input values from the settings form
+/**
+ * Validate and sanitize input values from the settings form.
  */
 function eu_cookie_consent_settings_form_validate($form, &$form_state) {
   $settings = &$form_state['values']['eu_cookie_consent'];
 
   if ($settings['link_1'] && !$settings['link_1_text']) {
-    form_set_error('eu_cookie_consent][link_1_text', t('Error. There is no value for <em>Link #1 Text</em>. Please fill it, or remove Link #1'));
+    form_set_error(
+      'eu_cookie_consent][link_1_text',
+      t('Error. There is no value for <em>Link #1 Text</em>. Please fill it, or remove Link #1')
+    );
   }
   if ($settings['link_2'] && !$settings['link_2_text']) {
-    form_set_error('eu_cookie_consent][link_2_text', t('Error. There is no value for <em>Link #2 Text</em>. Please fill it, or remove Link #2'));
+    form_set_error(
+      'eu_cookie_consent][link_2_text',
+      t('Error. There is no value for <em>Link #2 Text</em>. Please fill it, or remove Link #2')
+    );
   }
 
   $settings['link_2_text'] = check_plain(trim($settings['link_2_text']));
 
   if (!is_numeric($settings['expiry_days'])) {
-    form_set_error('eu_cookie_consent][expiry_days', t('Expiry days must be a number. 365 is the default value, for example.'));
-  } else {
+    form_set_error(
+      'eu_cookie_consent][expiry_days',
+      t('Expiry days must be a number. 365 is the default value, for example.')
+    );
+  }
+  else {
     $settings['expiry_days'] = (int) $settings['expiry_days'];
   }
   if (!is_numeric($settings['scroll_delay'])) {
-    form_set_error('eu_cookie_consent][scroll_delay', t('Scroll delay must be a number. 2000 is the default value, for example.'));
-  } else {
+    form_set_error(
+      'eu_cookie_consent][scroll_delay',
+      t('Scroll delay must be a number. 2000 is the default value, for example.')
+    );
+  }
+  else {
     $settings['scroll_delay'] = (int) $settings['scroll_delay'];
   }
 
   $settings['link_1'] = check_url($settings['link_1']);
   $settings['link_2'] = check_url($settings['link_2']);
-  // filter_xss default tags, plus '<br>'
-  $allowed_tags = array('a', 'br', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd');
+  // filter_xss default tags, plus '<br>'.
+  $allowed_tags = array(
+    'a',
+    'br',
+    'em',
+    'strong',
+    'cite',
+    'blockquote',
+    'code',
+    'ul',
+    'ol',
+    'li',
+    'dl',
+    'dt',
+    'dd',
+  );
   $settings['message'] = filter_xss($settings['message'], $allowed_tags);
 }

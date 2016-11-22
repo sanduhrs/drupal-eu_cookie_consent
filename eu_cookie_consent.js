@@ -1,4 +1,9 @@
-(function($) {
+/**
+ * @file
+ * EU Cookie Consent behavior.
+ */
+
+(function ($) {
 
   var once = true;
   Drupal.behaviors.EUCookieConsent = {
@@ -14,4 +19,5 @@
       }
     }
   };
+
 })(jQuery);

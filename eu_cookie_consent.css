@@ -20,14 +20,14 @@
   margin: 0;
   padding: 0;
   line-height: 1.5em;
-  padding-top:0.2em;
+  padding-top: 0.2em;
 }
 
 .cEU__message a,
 .cEU__message a:visited {
-  cursor:pointer;
+  cursor: pointer;
   text-decoration: none;
-  color: #19B5FE;
+  color: #19b5fe;
 }
 .cEU__message a:hover,
 .cEU__message a:active {
@@ -40,7 +40,7 @@
   font-size: 0.6em;
   line-height: 1em;
   color: #000;
-  background-color: #19B5FE;
+  background-color: #19b5fe;
   border-radius: 2px;
   padding: 8px 10px;
   display: block;
@@ -112,7 +112,6 @@
 .cEU__message {
   animation: slideUp 0.5s;
   -webkit-animation: slideUp 0.5s;
-
 }
 .cEU.hideBar {
   animation: slideUp 0.5s reverse forwards;
